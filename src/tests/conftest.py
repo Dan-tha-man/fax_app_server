@@ -5,7 +5,7 @@ from fastapi.testclient import TestClient
 
 from src.db import table
 from src.main import app
-from src.models import UserProfile, RoomModel
+from src.models import UserProfile, RoomInfo
 from src.tests.utils.room import create_random_room, create_test_room
 from src.tests.utils.user import (
     authentication_token_from_username,
@@ -40,9 +40,9 @@ def user_token_headers(client: TestClient, db: Any, username: str) -> Dict[str, 
     return authentication_token_from_username(client=client, username=username, db=db)
 
 @pytest.fixture(scope="module")
-def test_room(db: Any) -> RoomModel:
+def test_room(db: Any) -> RoomInfo:
     return create_test_room(db)
 
 @pytest.fixture(scope="module")
-def test_new_room(db: Any) -> RoomModel:
+def test_new_room(db: Any) -> RoomInfo:
     return create_random_room(db)

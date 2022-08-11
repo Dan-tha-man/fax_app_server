@@ -1,8 +1,8 @@
 from .base import BaseDBModel
 from pydantic import UUID4
 
-class RoomModel(BaseDBModel):
-    name: str
+class RoomInfo(BaseDBModel):
+    room_name: str
     created_at: str
     is_pinned: bool | None
     last_message_sent: str

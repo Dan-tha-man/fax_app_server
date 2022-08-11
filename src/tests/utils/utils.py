@@ -14,7 +14,7 @@ def random_username() -> str:
     return f"test_user{random_lower_string()}"
 
 def random_room_name() -> str:
-    return f"test_room{random_lower_string()}"
+    return f"test_room_{random_lower_string()}"
 
 def random_room_type() -> str:
     return random.choice(["group", "dm", "timecapsule"])

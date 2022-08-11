@@ -1,3 +1,3 @@
 from .user import UserProfile
 from .base import BaseDBModel
-from .room import RoomModel
+from .room import RoomInfo

@@ -7,12 +7,12 @@ class RoomBase(BaseModel):
 
 class RoomCreate(RoomBase):
     UUID: Optional[UUID4] = None
-    name: str
+    room_name: str
     room_type: str
     settings: Optional[dict] = None
 
 class RoomUpdate(RoomBase):
-    name: Optional[str] = None
+    room_name: Optional[str] = None
     is_pinned: Optional[bool] = None
     last_message_sent: Optional[datetime] = None
     settings: Optional[dict] = None
