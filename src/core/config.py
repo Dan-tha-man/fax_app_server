@@ -1,4 +1,4 @@
-from pydantic import BaseSettings, EmailStr
+from pydantic import BaseSettings, EmailStr, UUID4
 
 
 class Settings(BaseSettings):
@@ -32,6 +32,10 @@ class Settings(BaseSettings):
     TEST_USER: str
     TEST_USER_PASSWORD: str
     TEST_USER_EMAIL: EmailStr
+
+    TEST_ROOM_NAME: str
+    TEST_ROOM_TYPE: str
+    TEST_ROOM_UUID: UUID4
 
     class Config:
         env_file = ".env"
