@@ -21,7 +21,7 @@ def test_create_room(db: Any) -> None:
 def test_get_room(db: Any) -> None:
     new_room = create_random_room(db)
     room_from_db = crud.room.get(db, primary_key=new_room.primary_key())
-    crud.user.remove(db, new_room.primary_key())
+    crud.room.remove(db, new_room.primary_key())
 
     assert room_from_db is not None
     assert new_room.room_name == room_from_db["room_name"]
@@ -30,7 +30,7 @@ def test_get_room(db: Any) -> None:
 def test_get_room_by_uuid(db: Any) -> None:
     new_room = create_random_room(db)
     room_from_db = crud.room.get_by_uuid(db, uuid=new_room.UUID())
-    crud.user.remove(db, primary_key=new_room.primary_key())
+    crud.room.remove(db, primary_key=new_room.primary_key())
 
     assert room_from_db is not None
     assert new_room.room_name == room_from_db.room_name
@@ -43,7 +43,7 @@ def test_update_room(db: Any) -> None:
 
     crud.room.update(db, db_obj=new_room, obj_in=room_create_update)
     room_from_db = crud.room.get(db, primary_key=new_room.primary_key())
-    crud.user.remove(db, new_room.primary_key())
+    crud.room.remove(db, new_room.primary_key())
 
     assert room_from_db is not None
     assert new_room.room_name != room_from_db["room_name"]

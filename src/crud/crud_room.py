@@ -1,11 +1,13 @@
-from typing import Optional, Any, Dict
+from typing import Optional, Any, Dict, List
 from datetime import datetime
 from uuid import uuid4
 
 from src.core.security import get_password_hash, verify_password
 from src.crud.base import CRUDBase
-from src.models import RoomInfo
+from src.models import RoomInfo, EventInfo
 from src.schemas.room import RoomCreate, RoomUpdate
+
+from boto3.dynamodb.conditions import Key
 
 
 class CRUDRoomInfo(CRUDBase[RoomCreate, RoomUpdate]):
@@ -18,6 +20,20 @@ class CRUDRoomInfo(CRUDBase[RoomCreate, RoomUpdate]):
         else:
             return RoomInfo(response["Item"])
 
+    def get_events_by_user(self, db: Any, room_uuid: str, username: str) -> List[EventInfo]:
+        room_PK = f"ROOM#{room_uuid}"
+        return db.query(EventInfo).filter(EventInfo.PK == room_PK and EventInfo.event_creator == username)
+
+    def get_event_by_uuid(self, db: Any, room_uuid: str, event_uuid: str) -> Optional[EventInfo]:
+        room_PK = f"ROOM#{room_uuid}"
+        room_item_list = db.query(KeyConditionExpression=Key("PK").eq(room_PK))['Items']
+
+        for room_entry in room_item_list:
+            if room_entry['uuid'] == event_uuid:
+                return room_entry
+        
+        return None
+
     def create(self, db: Any, obj_in: RoomCreate) -> RoomInfo:
         model = RoomInfo()
 
@@ -27,7 +43,8 @@ class CRUDRoomInfo(CRUDBase[RoomCreate, RoomUpdate]):
             while self.get_by_uuid(db, str(new_uuid)) is not None:
                 new_uuid = uuid4()
 
-        model.PK = f"ROOM#{str(new_uuid)}"
+        model.uuid = str(new_uuid)
+        model.PK = f"ROOM#{model.uuid}"
         model.SK = "INFO"
         model.room_name = obj_in.room_name
         model.created_at = datetime.now().isoformat()
@@ -40,6 +57,22 @@ class CRUDRoomInfo(CRUDBase[RoomCreate, RoomUpdate]):
 
         db.put_item(Item=model.to_dict())
         return model
+
+    def create_event(self, db: Any, room_uuid: str, creator: str) -> Optional[EventInfo]:
+        event = EventInfo()
+        
+        room_to_update = self.get_by_uuid(db, room_uuid)
+        if room_to_update == None:
+            return None
+
+        event.uuid = str(uuid4())
+        event.PK = f"ROOM#{room_uuid}"
+        event.SK = f"EVENT#{datetime.now().isoformat()}#EVENT#{event.uuid}#TYPE#TEST"
+        event.event_creator = creator
+        event.viewed_by = [creator]
+
+        db.put_item(Item=event.to_dict())
+        return event
 
     def update(
         self, db: Any, db_obj: RoomInfo, obj_in: RoomUpdate | Dict[str, Any]

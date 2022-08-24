@@ -10,6 +10,7 @@ class RoomInfo(BaseDBModel):
     settings: dict
     vote_kick_attempts: dict | None
     blocked_room: list | None
+    uuid: str
 
     def __init__(self, attrs: dict = None):
         if attrs is not None:
