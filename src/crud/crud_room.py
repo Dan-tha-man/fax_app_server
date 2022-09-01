@@ -22,15 +22,18 @@ class CRUDRoomInfo(CRUDBase[RoomCreate, RoomUpdate]):
 
     def get_events_by_user(self, db: Any, room_uuid: str, username: str) -> List[EventInfo]:
         room_PK = f"ROOM#{room_uuid}"
-        return db.query(EventInfo).filter(EventInfo.PK == room_PK and EventInfo.event_creator == username)
+        events_list = db.query(EventInfo).filter(EventInfo.PK == room_PK and EventInfo.event_creator == username)
+        return [EventInfo(e) for e in events_list]
 
     def get_event_by_uuid(self, db: Any, room_uuid: str, event_uuid: str) -> Optional[EventInfo]:
         room_PK = f"ROOM#{room_uuid}"
         room_item_list = db.query(KeyConditionExpression=Key("PK").eq(room_PK))['Items']
 
         for room_entry in room_item_list:
-            if room_entry['uuid'] == event_uuid:
-                return room_entry
+            if 'event_creator' in room_entry:
+                this_event = EventInfo(room_entry)
+                if this_event.UUID == event_uuid:
+                    return this_event
         
         return None
 
@@ -81,6 +84,6 @@ class CRUDRoomInfo(CRUDBase[RoomCreate, RoomUpdate]):
             update_data = obj_in
         else:
             update_data = obj_in.dict(exclude_unset=True)
-        return super().update(db, db_obj=db_obj, obj_in=update_data)
+        return RoomInfo(super().update(db, db_obj=db_obj, obj_in=update_data))
 
 room = CRUDRoomInfo()

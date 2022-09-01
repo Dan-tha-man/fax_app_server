@@ -17,4 +17,4 @@ def test_room(
 ) -> EventInfo:
     
     test_event = crud.room.create_event(db, room_uuid, user_name)
-    return test_event.UUID()
+    return test_event.UUID
