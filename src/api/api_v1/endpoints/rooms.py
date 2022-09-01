@@ -6,6 +6,7 @@ from pydantic import UUID4
 from src import  crud
 from src.db import table as db
 from src.models.event import EventInfo
+from src.schemas.event import EventCreate
 
 router = APIRouter()
 
@@ -16,5 +17,6 @@ def test_room(
     user_name: str
 ) -> EventInfo:
     
-    test_event = crud.room.create_event(db, room_uuid, user_name)
+    new_event = EventCreate(event_creator=user_name, event_type='TEST')
+    test_event = crud.event.create(db, new_event, room_uuid)
     return test_event.UUID

@@ -1,5 +1,4 @@
 from .base import BaseDBModel
-from pydantic import UUID4
 
 class RoomInfo(BaseDBModel):
     room_name: str

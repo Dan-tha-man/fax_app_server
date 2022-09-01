@@ -23,7 +23,10 @@ def test_create_event(
     event_uuid = str(response.content, 'utf-8').strip('"')
     assert event_uuid != None
     
-    new_event = crud.room.get_event_by_uuid(db, new_room.UUID, event_uuid)
+    new_event = crud.event.get_by_uuid(db, new_room.UUID, event_uuid)
     assert new_event != None
     assert new_event.UUID == event_uuid
     assert new_event.event_creator == new_user.username()
+
+    crud.event.remove(db, primary_key=new_event.primary_key())
+    crud.user.remove(db, primary_key=new_user.primary_key())

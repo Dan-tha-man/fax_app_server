@@ -20,23 +20,6 @@ class CRUDRoomInfo(CRUDBase[RoomCreate, RoomUpdate]):
         else:
             return RoomInfo(response["Item"])
 
-    def get_events_by_user(self, db: Any, room_uuid: str, username: str) -> List[EventInfo]:
-        room_PK = f"ROOM#{room_uuid}"
-        events_list = db.query(EventInfo).filter(EventInfo.PK == room_PK and EventInfo.event_creator == username)
-        return [EventInfo(e) for e in events_list]
-
-    def get_event_by_uuid(self, db: Any, room_uuid: str, event_uuid: str) -> Optional[EventInfo]:
-        room_PK = f"ROOM#{room_uuid}"
-        room_item_list = db.query(KeyConditionExpression=Key("PK").eq(room_PK))['Items']
-
-        for room_entry in room_item_list:
-            if 'event_creator' in room_entry:
-                this_event = EventInfo(room_entry)
-                if this_event.UUID == event_uuid:
-                    return this_event
-        
-        return None
-
     def create(self, db: Any, obj_in: RoomCreate) -> RoomInfo:
         model = RoomInfo()
 
@@ -60,22 +43,6 @@ class CRUDRoomInfo(CRUDBase[RoomCreate, RoomUpdate]):
 
         db.put_item(Item=model.to_dict())
         return model
-
-    def create_event(self, db: Any, room_uuid: str, creator: str) -> Optional[EventInfo]:
-        event = EventInfo()
-        
-        room_to_update = self.get_by_uuid(db, room_uuid)
-        if room_to_update == None:
-            return None
-
-        event.uuid = str(uuid4())
-        event.PK = f"ROOM#{room_uuid}"
-        event.SK = f"EVENT#{datetime.now().isoformat()}#EVENT#{event.uuid}#TYPE#TEST"
-        event.event_creator = creator
-        event.viewed_by = [creator]
-
-        db.put_item(Item=event.to_dict())
-        return event
 
     def update(
         self, db: Any, db_obj: RoomInfo, obj_in: RoomUpdate | Dict[str, Any]
